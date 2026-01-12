@@ -1,0 +1,58 @@
+title: "网址导航"
+subtitle: "快速访问常用的网址"
+favicon: "/favicon.ico"
+
+groups:
+  - name: "开发工具(demo)"
+    # description: "常用的编程与代码管理工具"
+    services:
+      - name: "Google"
+        url: "https://www.google.com"
+        description: "搜索引擎"
+        # icon: "https://www.google.com/favicon.ico"
+      - name: "GitHub"
+        url: "https://github.com"
+        description: "代码托管"
+        # icon: "https://github.com/fluidicon.png"
+  - name: "内网服务(demo)"
+    # description: "常用的编程与代码管理工具"
+    services:
+      - name: "本地测试"
+        url: "http://127.0.0.1:3000"
+        description: "当前服务"
+        # icon: "/favicon.ico" # 支持本地路径
+      - name: "无效服务"
+        url: "http://localhost:9999"
+        description: "用于测试离线状态"
+
+# 外部服务源配置
+external_sources:
+  - name: "飞牛服务"
+    description: "飞牛部署的Docker服务，支持动态刷新"
+    check_ip: "http://10.0.0.11:5666" # 如果此IP可通，则视为内网环境
+    visible: true
+    url: "http://localhost:3001/api/fn/services"
+    method: "POST"
+    headers:
+      "Content-Type": "application/json"
+    body:
+      fnId: "$FN_ID"
+      username: "$FN_USERNAME"
+      password: "$FN_PASSWORD"
+      key: "$API_KEY"
+      isLocal: "$IS_LOCAL"
+    override: true
+    mapping:
+      name: "title"
+      url: "url"
+      alias: "alias"
+      # clickable: "clickable" # 映射 API 返回的字段
+      # visible: "visible"
+    services:
+      - name: "OpenList (魔改版)"
+        alias: "openlist_55244"
+        description: "这是通过YAML覆盖的描述"
+        icon: "/icon/215780325.png"
+        clickable: true # 允许点击
+        visible: true # 允许显示
+
