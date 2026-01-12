@@ -55,17 +55,28 @@ export function ServiceCard({ service }: ServiceCardProps) {
 
     const checkStatus = async () => {
       setStatus("checking");
+      const startTime = Date.now();
+      
       try {
-        const res = await fetch(`/api/status?url=${encodeURIComponent(service.url)}`);
-        const data = await res.json();
+        // Direct client-side fetch with no-cors mode
+        // This works for detecting if a server is reachable (TCP connection successful)
+        // even if CORS headers are missing.
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 1500);
+
+        await fetch(service.url, {
+            method: 'HEAD',
+            mode: 'no-cors',
+            signal: controller.signal,
+            referrerPolicy: 'no-referrer'
+        });
+
+        clearTimeout(timeoutId);
         
-        if (data.status === 'online') {
-            setStatus("online");
-            setLatency(data.latency);
-        } else {
-            setStatus("offline");
-            setLatency(data.latency);
-        }
+        // If we get here without error, it means reachable
+        const endTime = Date.now();
+        setStatus("online");
+        setLatency(endTime - startTime);
       } catch (error) {
         setStatus("offline");
       }
