@@ -20,6 +20,7 @@ export interface Group {
   description?: string;
   services: Service[];
   isLocal?: boolean;
+  check_ip?: string;
 }
 
 export interface ExternalSource {
@@ -58,34 +59,14 @@ export async function fetchExternalGroups(external_sources: ExternalSource[]): P
 
   const sourcePromises = external_sources.map(async (source) => {
     try {
+      // Note: We intentionally do NOT set isLocal here based on check_ip.
+      // That is now handled client-side in ClientGroupRenderer.
+      // However, if IS_LOCAL env var is strictly set, we might respect it, 
+      // but the client logic is generally superior for user-context detection.
       let isLocal = IS_LOCAL === 'true';
-      if (source.check_ip) {
-          try {
-              // Check connectivity to the specified IP with a short timeout
-              const controller = new AbortController();
-              const timeoutId = setTimeout(() => controller.abort(), 1000); // Reduced to 1 second
-              
-              // We assume check_ip is a full URL or we construct a simple one. 
-              // However, usually "check IP" implies just checking if a host is reachable. 
-              // Since we are in a node environment, we can use fetch to a known endpoint on that IP, 
-              // or just try to fetch the IP itself if it exposes a web service. 
-              // For simplicity and safety, we'll try to fetch the root of the provided check_ip (assuming it's a URL)
-              // If the user provided just an IP, we might need to prepend http://.
-              let checkUrl = source.check_ip;
-              if (!checkUrl.startsWith('http')) {
-                  checkUrl = `http://${checkUrl}`;
-              }
 
-              await fetch(checkUrl, { 
-                  method: 'HEAD', 
-                  signal: controller.signal 
-              });
-              clearTimeout(timeoutId);
-              isLocal = true;
-          } catch (e) {
-              isLocal = false;
-          }
-      }
+      // Pass check_ip to the group object so client can use it
+      const checkIpUrl = source.check_ip;
 
       // Construct payload
       let payload: any = {};
@@ -184,7 +165,8 @@ export async function fetchExternalGroups(external_sources: ExternalSource[]): P
                   visible: source.visible !== false, // Default to true if not specified
                   description: source.description,
                   services: newServices,
-                  isLocal: isLocal
+                  isLocal: isLocal, // Initial server-side guess, client will refine
+                  check_ip: checkIpUrl
               };
           }
       }
