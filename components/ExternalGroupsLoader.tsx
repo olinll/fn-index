@@ -1,20 +1,15 @@
-import { fetchExternalGroups, ExternalSource } from "@/lib/config";
-import { ServiceCard } from "@/components/ServiceCard";
-import { ClientGroupRenderer } from "./ClientGroupRenderer";
+import { ExternalSource } from "@/lib/config";
+import { ExternalSourceManager } from "./ExternalSourceManager";
 
-export async function ExternalGroupsLoader({ sources }: { sources: ExternalSource[] }) {
-  const groups = await fetchExternalGroups(sources);
-
-  if (groups.length === 0) {
-    return null;
-  }
-
+export function ExternalGroupsLoader({ sources }: { sources: ExternalSource[] }) {
+  // Now simply orchestrates client-side managers for each source
+  // No server-side fetching here anymore
   return (
     <>
-      {groups
-        .filter(group => group.visible !== false)
-        .map((group) => (
-          <ClientGroupRenderer key={group.name} group={group} />
+      {sources
+        .filter(source => source.visible !== false)
+        .map((source) => (
+          <ExternalSourceManager key={source.name} source={source} />
       ))}
     </>
   );

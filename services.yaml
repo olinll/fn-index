@@ -40,7 +40,7 @@ external_sources:
       username: "$FN_USERNAME"
       password: "$FN_PASSWORD"
       key: "$API_KEY"
-      isLocal: "$IS_LOCAL"
+      # isLocal: "$IS_LOCAL"
     override: true
     mapping:
       name: "title"
