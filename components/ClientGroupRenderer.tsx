@@ -24,62 +24,71 @@ export function ClientGroupRenderer({ group }: { group: Group }) {
           // A better approach for client-side is to try to load an image or script from that IP if possible.
           // Or if the user provides a full URL that supports CORS.
           
-          // Strategy: Try HEAD request with short timeout
-          // However, direct fetch from client to internal IP often fails due to Mixed Content (if HTTPS) or CORS
-          // BUT: If the user is on HTTPS and target is HTTP, browser blocks it.
-          // If the user is on HTTP and target is HTTP, it might work with no-cors.
+          // Strategy: Parallel check using fetch(no-cors) and Image load
+          // This maximizes chances of detection across different browser policies and server configs.
           
-          // REVISED STRATEGY:
-          // We CANNOT trust browser-side fetch to internal IP if CORS is missing or Protocol Mismatch (Mixed Content).
-          // And we CANNOT use server-side proxy because the server (e.g. Vercel/Cloud) cannot access user's localhost/intranet.
+          const checkUrl = group.check_ip!;
+          const targetUrl = checkUrl.startsWith('http') ? checkUrl : `http://${checkUrl}`;
           
-          // So we must try best-effort browser fetch.
-          // Common issue: "strict-origin-when-cross-origin" or CORS error.
-          // With mode: 'no-cors', we get an opaque response. 
-          // If it throws "Network Error", it usually means unreachable OR Mixed Content block.
-          
-          // Let's try loading an Image instead!
-          // Image loading is more permissive than fetch (no CORS required for display, though we can't read pixels).
-          // If onload triggers, it's reachable. If onerror triggers, it might be 404 (reachable) or Network Error (unreachable).
-          // But actually, for this specific use case (detecting Intranet), 
-          // fetch with no-cors is the standard way, even if it returns opaque.
-          // If it returns (even opaque), it means the TCP connection succeeded.
-          
-          // Wait! The user says "strict-origin-when-cross-origin". This is a Referrer Policy.
-          // It usually appears when doing cross-origin requests.
-          // If we see this, it often means the request WAS sent.
-          
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 1500);
-          
-          let checkUrl = group.check_ip!;
-          if (!checkUrl.startsWith('http')) {
-             checkUrl = `http://${checkUrl}`;
-          }
+          const checkFetch = async () => {
+             const controller = new AbortController();
+             const timeoutId = setTimeout(() => controller.abort(), 2000);
+             try {
+                await fetch(targetUrl, {
+                    method: 'GET', // GET is more robust than HEAD for some servers
+                    mode: 'no-cors', 
+                    signal: controller.signal,
+                    referrerPolicy: 'no-referrer'
+                });
+                clearTimeout(timeoutId);
+                return true;
+             } catch (e) {
+                return false;
+             }
+          };
 
-          // Using mode: 'no-cors' allows the request to be sent to an opaque origin
-          // We won't see the status code, but if it doesn't throw a NetworkError, it means the host is resolved and reachable.
-          await fetch(checkUrl, {
-            method: 'HEAD',
-            mode: 'no-cors', 
-            signal: controller.signal,
-            referrerPolicy: 'no-referrer' // Try to reduce referrer noise
-          });
+          const checkImage = () => {
+             return new Promise<boolean>((resolve) => {
+                const img = new Image();
+                const timeoutId = setTimeout(() => {
+                    img.src = ""; // Cancel loading
+                    resolve(false);
+                }, 2000);
+
+                img.onload = () => {
+                    clearTimeout(timeoutId);
+                    resolve(true);
+                };
+                
+                // If it fails (404 or network error), we can't distinguish easily.
+                // But typically if it's a network error (unreachable), it errors out.
+                // If it's 404 (reachable), it also errors out.
+                // So Image check is mostly useful for POSITIVE confirmation (onload).
+                img.onerror = () => {
+                    clearTimeout(timeoutId);
+                    resolve(false);
+                };
+
+                // Try to load favicon or just the root (which might fail if not an image)
+                // We append /favicon.ico to give it a best chance of being a valid image
+                // But we must be careful about the path.
+                try {
+                    const urlObj = new URL(targetUrl);
+                    urlObj.pathname = "/favicon.ico";
+                    img.src = urlObj.toString();
+                } catch {
+                    resolve(false);
+                }
+             });
+          };
+
+          // Run both checks
+          const [fetchResult, imgResult] = await Promise.all([checkFetch(), checkImage()]);
           
-          clearTimeout(timeoutId);
-          setIsLocal(true);
+          // If either succeeded, we consider it Local
+          setIsLocal(fetchResult || imgResult);
         } catch (e) {
-          // Check if it's an abort error (timeout)
-          if (e instanceof DOMException && e.name === 'AbortError') {
-             setIsLocal(false);
-          } else {
-             // Other errors might be CORS related or Network related.
-             // If it's a CORS error (which fetch often masks as TypeError: Failed to fetch),
-             // it paradoxically means the server IS reachable but refused the headers.
-             // However, 'no-cors' mode prevents CORS errors from throwing!
-             // So if we get here with 'no-cors', it's likely a true Network Error (Connection Refused / Name Not Resolved).
-             setIsLocal(false);
-          }
+          setIsLocal(false);
         } finally {
           setHasChecked(true);
         }
