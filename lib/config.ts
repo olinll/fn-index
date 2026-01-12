@@ -40,8 +40,8 @@ export interface ExternalSource {
     description?: string;
     icon?: string;
     alias?: string;
-    clickable?: boolean;
-    visible?: boolean;
+    clickable?: string;
+    visible?: string;
   };
 }
 
@@ -136,8 +136,8 @@ export async function fetchExternalGroups(external_sources: ExternalSource[]): P
               description: source.mapping.description ? item[source.mapping.description] : undefined,
               icon: source.mapping.icon ? item[source.mapping.icon] : undefined,
               alias: source.mapping.alias ? item[source.mapping.alias] : undefined,
-              clickable: (source.mapping.clickable && item[source.mapping.clickable] !== undefined) ? item[source.mapping.clickable] : true,
-              visible: (source.mapping.visible && item[source.mapping.visible] !== undefined) ? item[source.mapping.visible] : true,
+              clickable: (source.mapping.clickable && item[source.mapping.clickable] !== undefined) ? String(item[source.mapping.clickable]) !== 'false' : true,
+              visible: (source.mapping.visible && item[source.mapping.visible] !== undefined) ? String(item[source.mapping.visible]) !== 'false' : true,
               entryToken: (!isLocal && entryToken) ? entryToken : undefined,
               isLocal: isLocal
           })).filter(s => s.name && s.url); // Ensure valid services
