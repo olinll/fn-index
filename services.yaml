@@ -5,6 +5,7 @@ favicon: "/favicon.ico"
 groups:
   - name: "开发工具(demo)"
     # description: "常用的编程与代码管理工具"
+    visible: false
     services:
       - name: "Google"
         url: "https://www.google.com"
@@ -16,6 +17,7 @@ groups:
         # icon: "https://github.com/fluidicon.png"
   - name: "内网服务(demo)"
     # description: "常用的编程与代码管理工具"
+    visible: false
     services:
       - name: "本地测试"
         url: "http://127.0.0.1:3000"
@@ -46,13 +48,54 @@ external_sources:
       name: "title"
       url: "url"
       alias: "alias"
+      description: "alias"
       # clickable: "clickable" # 映射 API 返回的字段
       # visible: "visible"
     services:
-      - name: "OpenList (魔改版)"
+      - name: "OpenList"
         alias: "openlist_55244"
-        description: "这是通过YAML覆盖的描述"
-        icon: "/icon/215780325.png"
+        description: "个人私网盘"
+        icon: "/icon/openlist.png"
         clickable: true # 允许点击
         visible: true # 允许显示
+      - name: "Uptime Kuma"
+        alias: "uptime-kuma_53001"
+        description: "Uptime Kuma 检测服务"
+        icon: "/icon/uptime-kuma.webp"
+        clickable: true # 允许点击
+        visible: true # 允许显示
+      - name: "Astrbot"
+        alias: "astrbot_56185"
+        description: "Astrbot 智能助手"
+        icon: "/icon/astrbot.svg"
+        clickable: true # 允许点击
+        visible: true # 允许显示
+      - name: "Nginx Proxy Manager"
+        alias: "nginx-proxy-manager_58081"
+        description: "Nginx Proxy Manager 反向代理"
+        icon: "/icon/nginx-proxy-manager.svg"
+        clickable: true # 允许点击
+        visible: true # 允许显示
+      - name: "NapCatQQ"
+        alias: "napcat_56099"
+        description: "NapCatQQ 客户端"
+        icon: "/icon/napcat.png"
+        clickable: true # 允许点击
+        visible: true # 允许显示
+      - name: "Memos"
+        alias: "memos_55230"
+        description: "Memos 记事本"
+        icon: "/icon/memos.webp"
+        clickable: true # 允许点击
+        visible: true # 允许显示
+      - alias: "nginx-proxy-manager_50080"
+        visible: false
+      - alias: "nginx-proxy-manager_50443"
+        visible: false
+      - alias: "mortis_55231"
+        visible: false
+      - alias: "napcat_51300"
+        visible: false
+      - alias: "napcat_51301"
+        visible: false
 
