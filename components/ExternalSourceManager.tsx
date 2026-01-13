@@ -26,7 +26,7 @@ export function ExternalSourceManager({ source }: { source: ExternalSource }) {
       
       const checkFetch = async () => {
          const controller = new AbortController();
-         const timeoutId = setTimeout(() => controller.abort(), 2000);
+         const timeoutId = setTimeout(() => controller.abort(), 1000);
          try {
             await fetch(targetUrl, {
                 method: 'GET',
@@ -47,7 +47,7 @@ export function ExternalSourceManager({ source }: { source: ExternalSource }) {
             const timeoutId = setTimeout(() => {
                 img.src = "";
                 resolve(false);
-            }, 2000);
+            }, 1000);
 
             img.onload = () => {
                 clearTimeout(timeoutId);

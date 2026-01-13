@@ -32,7 +32,7 @@ export function ClientGroupRenderer({ group }: { group: Group }) {
           
           const checkFetch = async () => {
              const controller = new AbortController();
-             const timeoutId = setTimeout(() => controller.abort(), 2000);
+             const timeoutId = setTimeout(() => controller.abort(), 1000);
              try {
                 await fetch(targetUrl, {
                     method: 'GET', // GET is more robust than HEAD for some servers
@@ -53,7 +53,7 @@ export function ClientGroupRenderer({ group }: { group: Group }) {
                 const timeoutId = setTimeout(() => {
                     img.src = ""; // Cancel loading
                     resolve(false);
-                }, 2000);
+                }, 1000);
 
                 img.onload = () => {
                     clearTimeout(timeoutId);
