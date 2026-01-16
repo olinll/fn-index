@@ -11,6 +11,18 @@ interface NavPageProps {
 
 type NetworkMode = 'external' | 'internal';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
 export function NavPage({ config }: NavPageProps) {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -43,14 +55,16 @@ export function NavPage({ config }: NavPageProps) {
         
         clearTimeout(timeoutId);
         setMode('internal');
+        // Auto-switch toast handled by useEffect
       } catch (e) {
         console.log("内部探测失败，保持在外部模式", e);
-        setMode('external');
       }
     };
 
     probe();
   }, [config.probeUrl]);
+
+
 
   // 手动探测延迟功能
   const probeAllLatencies = async () => {
@@ -102,11 +116,9 @@ export function NavPage({ config }: NavPageProps) {
   };
 
   const toggleMode = () => {
-    setMode(prev => {
-      const newMode = prev === 'external' ? 'internal' : 'external';
-      toast.info(`已切换到${newMode === 'internal' ? '内部' : '外部'}模式`);
-      return newMode;
-    });
+    const newMode = mode === 'external' ? 'internal' : 'external';
+    setMode(newMode);
+    toast.info(`已切换到${newMode === 'internal' ? '内部' : '外部'}模式`);
   };
 
   // 过滤项目
@@ -190,9 +202,12 @@ export function NavPage({ config }: NavPageProps) {
       <main className="max-w-7xl mx-auto px-6 pb-20 space-y-12">
         {filteredGroups.map((group, idx) => (
           <section key={idx} className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500" style={{ animationDelay: `${idx * 100}ms` }}>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-col gap-1">
               <h2 className="text-xl font-bold tracking-tight">{group.name}</h2>
               {/* 这里可以添加标签，如果 config 支持的话 */}
+              {group.description && (
+                <span className="text-sm text-muted-foreground/80 font-medium">{group.description}</span>
+              )}
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {group.items.map((item, itemIdx) => (
@@ -201,6 +216,7 @@ export function NavPage({ config }: NavPageProps) {
                   item={item} 
                   mode={mode} 
                   latency={latencies[item.name + (item.description || "")]}
+                  isApiGroup={!!group.api}
                 />
               ))}
             </div>
@@ -223,8 +239,9 @@ import { NavIcon } from './nav-icon';
 import { Copy, Check, ArrowUpRight } from 'lucide-react';
 import { toast } from "sonner";
 
-function NavCard({ item, mode, latency }: { item: NavItem, mode: NetworkMode, latency?: number }) {
+function NavCard({ item, mode, latency, isApiGroup }: { item: NavItem, mode: NetworkMode, latency?: number, isApiGroup?: boolean }) {
   const [copied, setCopied] = useState(false);
+  const [showExternalAlert, setShowExternalAlert] = useState(false);
 
   // 确定 URL
   // 如果是内部模式，优先使用 internalUrl，回退到 externalUrl
@@ -236,6 +253,14 @@ function NavCard({ item, mode, latency }: { item: NavItem, mode: NetworkMode, la
   if (!url) return null;
 
   const isWebUrl = url.startsWith('http://') || url.startsWith('https://');
+
+  // 外部网络访问检查
+  const handleLinkClick = (e: React.MouseEvent) => {
+    if (mode === 'external' && isApiGroup && isWebUrl) {
+      e.preventDefault();
+      setShowExternalAlert(true);
+    }
+  };
 
   // 确定图标
   // 逻辑: 
@@ -349,14 +374,42 @@ function NavCard({ item, mode, latency }: { item: NavItem, mode: NetworkMode, la
 
   if (isWebUrl) {
     return (
-      <a 
-        href={url} 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className={commonClasses}
-      >
-        {content}
-      </a>
+      <>
+        <a 
+          href={url} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className={commonClasses}
+          onClick={handleLinkClick}
+        >
+          {content}
+        </a>
+
+        <AlertDialog open={showExternalAlert} onOpenChange={setShowExternalAlert}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>正在访问外部网络</AlertDialogTitle>
+              <AlertDialogDescription>
+                您正在通过FN Connect访问此服务。为了正常使用，该服务可能需要您手动添加 entry-token（Cookie） 或使用第三方脚本进行验证。
+                <br/><br/>
+               <a href="https://5ddd.com/" target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline underline-offset-4">FN Connect</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+               <a href="https://blog.olinl.com/" target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline underline-offset-4">如何使用油猴脚本（Olinl Blog）</a>
+                <br/><br/>
+                如果遇到访问问题，请检查您的网络连接或联系管理员。
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>取消</AlertDialogCancel>
+              <AlertDialogAction onClick={() => {
+                  if (url) window.open(url, '_blank');
+                  setShowExternalAlert(false);
+              }}>
+                继续访问
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
     );
   }
 

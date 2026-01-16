@@ -9,7 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@radix-ui/react-alert-dialog": "^1.1.15",
     "@types/js-yaml": "^4.0.9",
+    "clsx": "^2.1.1",
     "js-yaml": "^4.1.1",
     "lucide-react": "^0.562.0",
     "next": "16.1.2",
@@ -17,6 +19,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "sonner": "^2.0.7",
+    "tailwind-merge": "^3.4.0",
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
