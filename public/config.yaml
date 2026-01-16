@@ -1,0 +1,42 @@
+title: "网址导航"
+description: "企业与个人导航"
+# 网站图标 (可选)
+favicon: "/miyou.png"
+# 用于探测是否处于“内部”模式的 URL。
+# 应该是一个只能从内部网络访问的资源。
+# 如果此探测成功（返回 200-299），我们将自动切换到内部模式。
+probeUrl: "http://10.0.0.11:5666" # 示例：替换为真实的内部 IP/URL
+groups:
+  - name: "个人项目"
+    items:
+      - name: "拾柒小站"
+        description: "Wordpress博客"
+        icon: "https://blog.olinl.com/wp-content/uploads/2025/12/avatar-150x150.png"
+        externalUrl: "https://blog.olinl.com"
+        # internalUrl: "http://10.0.0.11:55244"
+      - name: "Olinl Blog"
+        description: "基于Hexo的静态博客"
+        externalUrl: "https://hexo.olinl.com"
+        # internalUrl: "http://10.0.0.11:51080"
+      - name: "EO Dashboard"
+        description: "EdgeOne静态监控大屏"
+        externalUrl: "https://eo.olinl.com"
+        # internalUrl: "http://10.0.0.11:51080"
+  - name: "飞牛 Docker"
+    items:
+      - name: "OpenList"
+        description: "个人网盘"
+        icon: "/icon/openlist.png" # 为空以测试自动获取 favicon
+        externalUrl: "http://10.0.0.11:55244"
+        internalUrl: "http://10.0.0.11:55244"
+      - name: "SpeedTest"
+        description: "测速服务"
+        externalUrl: "http://10.0.0.11:51080"
+        internalUrl: "http://10.0.0.11:51080"
+
+  - name: "工具"
+    items:
+      - name: "复制命令"
+        description: "点击复制命令"
+        externalUrl: "npm install -g something"
+        internalUrl: "npm install -g internal-pkg"
