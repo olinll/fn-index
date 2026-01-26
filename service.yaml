@@ -34,7 +34,10 @@ groups:
     description: "飞牛NAS Docker服务"
     api:
       enabled: true # 启用api服务
-      url: "https://fnconn-api.olinl.com/api/fn/services"
+      # eo
+      # url: "https://fnconn-api.olinl.com/api/fn/services"
+      # vercel
+      url: "https://edge-fn-docker-api.vercel.app/api/fn/services"
       params: FN_PARAMS
     items: # 下面为覆盖选项
       - alias: "openlist_55244"
