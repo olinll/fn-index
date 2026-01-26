@@ -33,7 +33,10 @@ external_sources:
     description: "飞牛部署的Docker服务，支持动态刷新"
     check_ip: "http://10.0.0.11:5666" # 如果此IP可通，则视为内网环境
     visible: true
-    url: "https://fnconn-api.olinl.com/api/fn/services"
+    # eo
+    # url: "https://fnconn-api.olinl.com/api/fn/services"
+    # vercel
+    url: "https://edge-fn-docker-api.vercel.app/api/fn/services"
     method: "POST"
     headers:
       "Content-Type": "application/json"
