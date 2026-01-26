@@ -141,7 +141,17 @@ export function NavPage({ config }: NavPageProps) {
       <header className="w-full pt-16 pb-8 px-6">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="flex-1">
-            <h1 className="text-4xl font-black tracking-tight mb-2">{config.title}</h1>
+            <div className="flex items-center gap-4 mb-2">
+              {config.favicon && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img 
+                  src={config.favicon} 
+                  alt={config.title} 
+                  className="w-12 h-12 rounded-full object-cover shadow-sm"
+                />
+              )}
+              <h1 className="text-4xl font-black tracking-tight">{config.title}</h1>
+            </div>
             {config.description && <p className="text-muted-foreground">{config.description}</p>}
           </div>
           

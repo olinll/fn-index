@@ -1,7 +1,7 @@
 title: "网址导航"
 description: ""
 # 网站图标 (可选)
-favicon: "/miyou.png"
+favicon: "https://q2.qlogo.cn/headimg_dl?dst_uin=9892214&spec=0"
 
 # 用于探测是否处于“内部”模式的 URL。
 # 应该是一个只能从内部网络访问的资源。
@@ -35,9 +35,9 @@ groups:
     api:
       enabled: true # 启用api服务
       # eo
-      # url: "https://fnconn-api.olinl.com/api/fn/services"
+      url: "https://fnconn-api.olinl.com/api/fn/services"
       # vercel
-      url: "https://edge-fn-docker-api.vercel.app/api/fn/services"
+      # url: "https://edge-fn-docker-api.vercel.app/api/fn/services"
       params: FN_PARAMS
     items: # 下面为覆盖选项
       - alias: "openlist_55244"

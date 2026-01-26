@@ -30,18 +30,21 @@ export async function fetchFnServices(apiUrl: string, credentials: FnCredentials
 
   const fetchMode = async (isLocal: boolean): Promise<FnService[]> => {
     try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
+      const params = new URLSearchParams({
+        fnId,
+        username,
+        password,
+        key,
+        isLocal: String(isLocal),
+      });
+
+      const url = `${apiUrl}${apiUrl.includes('?') ? '&' : '?'}${params.toString()}`;
+
+      const response = await fetch(url, {
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          fnId,
-          username,
-          password,
-          key,
-          isLocal, // Send as boolean
-        }),
         next: { revalidate: 60 }, // Cache for 60 seconds
       });
 

@@ -34,10 +34,17 @@ export async function getConfig(): Promise<AppConfig> {
 
       let credentials: FnCredentials;
       try {
+        // Try parsing as JSON first
         credentials = JSON.parse(envVarValue);
       } catch (e) {
-        console.error(`Failed to parse credentials from ${envVarName}`, e);
-        continue;
+        // If JSON parsing fails, try parsing as query string
+        try {
+          const params = new URLSearchParams(envVarValue);
+          credentials = Object.fromEntries(params) as unknown as FnCredentials;
+        } catch (qsError) {
+          console.error(`Failed to parse credentials from ${envVarName}`, e);
+          continue;
+        }
       }
 
       try {
